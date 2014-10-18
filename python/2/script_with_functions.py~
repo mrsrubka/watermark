@@ -72,10 +72,10 @@ def detect_bits_from_image(new_img,key_word_numbers,message_numbers):
 
 	for i in range(len(message_numbers)):
 		y = key_word_numbers[i]
-		if new_img[i,y] % 2 == 0:
-			detected_bits += "0"
-		else:
+		if new_img[i,y] %2 == 0:
 			detected_bits += "1"
+		else:
+			detected_bits += "0"
 	return detected_bits
 
 def change_detected_bits_to_binary_letters(detected_bits):
