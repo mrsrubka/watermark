@@ -37,28 +37,60 @@ def change_message_to_binary_ascii(message):
 
 	return message_numbers
 
-def write_message_on_image(img,key_word_numbers,message_numbers):
-	new_img = img
-
-#	for i in range(len(message_numbers)):
-#		y = key_word_numbers[i]
-#		if message_numbers[i] == 0:
-#			new_img[i,y] = 255
-#		else:
-#			new_img[i,y] = 0
+def write_message_on_image_BW(img,key_word_numbers,message_numbers):
+	new_img_BW = img
 
 	for i in range(len(message_numbers)):
 		y = key_word_numbers[i]
 		if message_numbers[i] == 0:
-			if new_img[i,y] % 2 == 0:
-				new_img[i,y] += 0 # bez_zmian
-			else:
-				new_img[i,y] += 1 # zmiana na parzysty
+			new_img[i,y] = 255
 		else:
-			if new_img[i,y] % 2 == 0:
-				new_img[i,y] += 1 # zmiana na nieparzysty
-			else:
-				new_img[i,y] += 0 # bez_zmian	
+			new_img[i,y] = 0
+	return new_img_BW
+
+def change_LSB_to_even(number):
+# even - parzysty
+	if number % 2 == 0:
+		return number
+	else:
+		if number == 255:
+			return 254
+		else:
+			return number + 1
+
+def change_LSB_to_odd(number):
+# odd - nieparzysty
+	if number % 2 != 0:
+		return number
+	else:
+		return number + 1
+
+def write_message_on_image(img,key_word_numbers,message_numbers):
+#jezeli message_numbers[i] == 0 to zamiana na parzysty
+# inaczej to na nieparzysty
+	new_img = img
+
+	for i in range(len(message_numbers)):
+		y = key_word_numbers[i]
+		if message_numbers[i] == 0:
+			new_img[i,y] = change_LSB_to_even(new_img[i,y])
+		else:
+			new_img[i,y] = change_LSB_to_odd(new_img[i,y])				
+# old version:
+#	for i in range(len(message_numbers)):
+#		y = key_word_numbers[i]
+#		if message_numbers[i] == 0:
+#			if new_img[i,y] % 2 == 0:
+#				new_img[i,y] += 0 # bez_zmian
+#			else:
+#				new_img[i,y] += 1 # zmiana na parzysty
+#		else:
+#			if new_img[i,y] % 2 == 0:
+#				new_img[i,y] += 1 # zmiana na nieparzysty
+#			else:
+#				new_img[i,y] += 0 # bez_zmian	
+
+
 	return new_img
 
 def detect_bits_from_image(new_img,key_word_numbers,message_numbers):
@@ -101,18 +133,22 @@ def change_binary_letters_to_message(detected_letters_binary):
 # Load an color image in grayscale
 img = cv2.imread('lena.bmp',0)
 
-#key_word = "Budapeszt"
-key_word = raw_input('Please enter key word.\n')
+key_word = "Budapeszt"
+#key_word = raw_input('Please enter key word.\n')
 key_word_numbers = change_key_word_into_ascii_numbers(key_word)
-#message ="chromodynamikaKwantowa"
-message = raw_input('Please enter your message.\n')
+message ="chromodynamikaKwantowa"
+#message = raw_input('Please enter your message.\n')
 message_numbers = change_message_to_binary_ascii(message)
 new_img = write_message_on_image(img,key_word_numbers,message_numbers)
+#new_img_BW = write_message_on_image_BW(img,key_word_numbers,message_numbers)
 
 cv2.imshow('image',new_img)
 cv2.waitKey(1000)
 cv2.imwrite('new_img.bmp',new_img)
 cv2.imwrite('new_img.jpeg',new_img)
+
+#cv2.imwrite('new_img_BW.bmp',new_img_BW)
+#cv2.imwrite('new_img_BW.jpeg',new_img_BW)
 
 
 

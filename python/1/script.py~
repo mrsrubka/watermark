@@ -164,8 +164,14 @@ cv2.imwrite('dst.bmp',dst)
 
 #####################33
 
-img_dem = dst * noise_signed
 
+#img_dem = np.dot(new_img,noise_mark_signed)
+#img_dem = np.dot(dst,noise_mark_signed)
+#img_dem = np.dot(noise_mark_signed,dst)
+#img_dem = noise_mark_signed * dst
+
+img_dem = dst * noise_signed
+#img_dem = dst * noise_mark_signed
 
 
 cv2.imshow('image',img_dem)
