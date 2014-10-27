@@ -54,10 +54,10 @@ cv2.imshow('image',blank_image)
 #cv2.waitKey(1000)
 cv2.imshow('image',resized_image_signed)
 #cv2.waitKey(1000)
-cv2.imwrite('resized_image.bmp',resized_image)
+#cv2.imwrite('resized_image.bmp',resized_image)
 cv2.imwrite('resized_image.jpg',resized_image)
 #cv2.waitKey(1000)
-cv2.imwrite('resized_image_signed.bmp',resized_image_signed)
+#cv2.imwrite('resized_image_signed.bmp',resized_image_signed)
 cv2.imwrite('resized_image_signed.jpg',resized_image_signed)
 
 noise = np.zeros((width,height), np.uint8)
@@ -123,7 +123,7 @@ print noise_mark_signed
 new_img = img + noise_mark_signed
 cv2.imshow('image',new_img)
 #cv2.waitKey(1000)
-cv2.imwrite('new_img.bmp',new_img)
+#cv2.imwrite('new_img.bmp',new_img)
 cv2.imwrite('new_img.jpeg',new_img)
 
 #print img
@@ -158,7 +158,8 @@ dst = cv2.filter2D(new_img,-1,kernel)
 
 cv2.imshow('image',dst)
 #cv2.waitKey(1000)
-cv2.imwrite('dst.bmp',dst)
+#cv2.imwrite('dst.bmp',dst)
+cv2.imwrite('dst.jpeg',dst)
 
 
 
@@ -170,7 +171,7 @@ img_dem = dst * noise_signed
 
 cv2.imshow('image',img_dem)
 #cv2.waitKey(1000)
-cv2.imwrite('img_dem.bmp',img_dem)
+#cv2.imwrite('img_dem.bmp',img_dem)
 cv2.imwrite('img_dem.jpeg',img_dem)
 
 ZnakDetekt = np.zeros((width,height), np.uint8)
@@ -179,5 +180,5 @@ for i in range(1,Mb+1):
 		ZnakDetekt[(i-1)*K+1:i*K+1,(j-1)*K+1:j*K+1] = np.sign(np.sum(np.sum(img_dem[(i-1)*K+1:i*K+1,(j-1)*K+1:j*K+1])))
 cv2.imshow('image',ZnakDetekt)
 #cv2.waitKey(1000)
-cv2.imwrite('ZnakDetekt.bmp',ZnakDetekt)
+#cv2.imwrite('ZnakDetekt.bmp',ZnakDetekt)
 cv2.imwrite('ZnakDetekt.jpeg',ZnakDetekt)
