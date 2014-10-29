@@ -1,0 +1,11 @@
+Moje pytanie, dlaczego po skasowaniu połowy obrazów a potem commicie, 
+na githubie nadal były widoczne pliki:
+
+okazało się że używałem 
+
+	git add .
+
+
+Natomiast zeby potwierdzić skasowanie plików należy użyć:
+
+	git add --all

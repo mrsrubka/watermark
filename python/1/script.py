@@ -4,181 +4,111 @@ import numpy as np
 import cv2
 import random
 
-# Load an color image in grayscale
-img = cv2.imread('lena.bmp',0)
+class WatermarkImage:
+	def __init__(self, original_image, message):
+		self.org = cv2.imread(original_image,0) #f.k.a. img
+		self.message = message
+		
+		self.height = self.org.shape[0]
+		self.width = self.org.shape[1]
 
-# Parametry
-K = 32     # rozmiar bloku dla jednego bitu znaku wodnego (K x K pikseli)
+		self.K = 32
+		self.Mb = self.width / self.K
+		self.Nb = self.height / self.K
 
+		self.message_matrix = np.zeros((self.K,self.K), np.uint8) #formerly known as blank_image_signed
 
-width, height = img.shape[:2]
-Mb = width/K
-Nb = height/K
-watermark = [ [ 0 for i in range(K) ] for j in range(K) ]
-for i in range(K):
-	for j in range(K):
-		watermark[i][j] = random.randint(0,1) - 1
-		if watermark[i][j] == 0:
-			watermark[i][j] = -1
-blank_image = np.zeros((K,K), np.uint8)
-for i in range(K):
-	for j in range(K):
-		blank_image[i,j] = random.randint(0,1)
-		if blank_image[i][j] == 0:
-			blank_image[i][j] = -1
-blank_image_signed = np.zeros((K,K), np.int8)
-for i in range(K):
-	for j in range(K):
-		if blank_image[i][j] == 255:
-			blank_image_signed[i][j] = -1
-		else:
-			blank_image_signed[i][j] = blank_image[i][j]
+		self.watermark = np.zeros((self.width,self.height), np.uint8) # f.k.a. resized_image_signed
+
+		self.noise = np.zeros((self.width,self.height), np.int8) #f.k.a. noise_signed
+
+		self.noised_watermark = np.zeros((self.width,self.height), np.int8) #f.k.a. noise_mark
+
+		self.img_with_message = self.org #f.k.a. new_image
 
 
-resized_image = np.zeros((width,height), np.uint8)
-for i in range(1,Mb+1):
-	for j in range(1,Nb+1):
-		resized_image[(i-1)*K+1:i*K+1,(j-1)*K+1:j*K+1] = blank_image[i][j]  
+		self.kernel = np.array([[-1, -1, -1, -1, -1],
+					   [-1,  1,  2,  1, -1],
+					   [-1,  2,  4,  2, -1],
+					   [-1,  1,  2,  1, -1],
+					   [-1, -1, -1, -1, -1]])
 
-resized_image_signed = np.zeros((width,height), np.int8)
-for i in range(width):
-	for j in range(height):
-		if resized_image[i,j] > 128:
-			resized_image_signed[i,j] = resized_image[i,j] - 256
-		else:
-			resized_image_signed[i,j] = resized_image[i,j] 
+		self.dst = self.org
 
+		self.demmod_img = self.org
 
+		self.watermark_detected = np.zeros((self.width,self.height), np.uint8) #f.k.a. ZnakDetekt
+		
+	def getHeight(self):
+		return self.height
 
-cv2.imshow('image',blank_image)
-#cv2.waitKey(1000)
-cv2.imshow('image',resized_image_signed)
-#cv2.waitKey(1000)
-#cv2.imwrite('resized_image.bmp',resized_image)
-cv2.imwrite('resized_image.jpg',resized_image)
-#cv2.waitKey(1000)
-#cv2.imwrite('resized_image_signed.bmp',resized_image_signed)
-cv2.imwrite('resized_image_signed.jpg',resized_image_signed)
+	def getWidth(self):
+		return self.width
 
-noise = np.zeros((width,height), np.uint8)
-#noise = np.zeros((width,height), np.uint8)
-#noise = np.zeros((width,height))
+	def set_message_matrix(self,message):
+	# at this moment we do not use paremeter: "message"
+	# We are still using random numbers to fill matrix
+		for i in range(self.K):
+			for j in range(self.K):
+				self.message_matrix[i,j] = random.randint(0,1)
+				if self.message_matrix[i][j] == 0:
+					self.message_matrix[i][j] = -1
 
-for i in range(width):
-	for j in range(height):
-		noise[i][j] = random.randint(1,6)
-#noise_mark = np.dot(noise,watermark)
+	def set_watermark(self):
+		for i in range(1,self.Mb+1):
+			for j in range(1,self.Nb+1):
+				self.watermark[(i-1)*self.K+1:i*self.K+1,(j-1)*self.K+1:j*self.K+1] = self.message_matrix[i][j]  
 
-noise_signed = np.zeros((width,height), np.int8)
-for i in range(width):
-	for j in range(height):
-		if noise[i,j] > 128:
-			noise_signed[i,j] = noise[i,j] - 256
-		else:
-			noise_signed[i,j] = noise[i,j] 
+	def set_noise(self):
+		for i in range(self.width):
+			for j in range(self.height):
+				self.noise[i][j] = random.randint(1,6)
 
-print noise.shape, blank_image.shape, resized_image.shape
-cv2.imshow('image',noise)
-#cv2.waitKey(1000)
+	def set_noised_watermark(self):
+		self.noised_watermark = self.noise * self.watermark
 
+	def set_img_with_message(self):
+		self.set_message_matrix("")
+		self.set_watermark()
+		self.set_noise()
+		self.set_noised_watermark()
+		self.img_with_message = self.org + self.noised_watermark
 
-#watermark = np.zeros((width,height), np.uint8)
-#for i in range(width):
-#	for j in range(height):
-#		ran = random.randint(0,1)
-#		if ran == 0:
-#			ran = -1
-#		watermark[(i-1)*K+1 : i*K, (j-1)*K+1 : j*K] = ran
+	
+	def set_dst(self):
+		self.dst = cv2.filter2D(self.img_with_message,-1,self.kernel)
+	
+	def set_demmod_img(self):
+		self.demmod_img = self.dst * self.noise
+	
+	def set_watermark_detected(self):
+		for i in range(1,self.Mb+1):
+			for j in range(1,self.Nb+1):
+				self.watermark_detected[(i-1)*self.K+1:i*self.K+1,(j-1)*self.K+1:j*self.K+1] = np.sign(np.sum(np.sum(self.demmod_img[(i-1)*self.K+1:i*self.K+1,(j-1)*self.K+1:j*self.K+1])))	
 
-#for i in range(width):
-#	for j in range(height):
-#		if resized_image[i][j] == 255:
-#			resized_image[i][j] = -1
-#print resized_image
-print "noise:"
-print noise
-#print resised_image
-
-
-#noise_mark_preview = np.dot(noise,resized_image)
-noise_mark_preview = noise * resized_image
-
-#noise_mark_signed = np.dot(noise_signed,resized_image_signed)
-noise_mark_signed = noise_signed * resized_image_signed
-
-
-noise_mark = noise_mark_preview
-#cv2.imshow('image',noise_mark)
-#cv2.waitKey(1000)
-
-cv2.imshow('image',noise_mark_signed)
-#cv2.waitKey(1000)
-
-#print "noise_mark:"
-#print noise_mark
-
-print "noise_mark_signed:"
-print noise_mark_signed
-
-new_img = img + noise_mark_signed
-cv2.imshow('image',new_img)
-#cv2.waitKey(1000)
-#cv2.imwrite('new_img.bmp',new_img)
-cv2.imwrite('new_img.jpeg',new_img)
-
-#print img
+	def read_watermark(self):
+		self.set_dst()
+		self.set_demmod_img()
+		self.set_watermark_detected()
 
 #####################################################################
 
-#L=10
-#L2 = 2*L+1
-#w = np.hamming(L2)
-#w2 = w * np.transpose(w)
-#ham2d = np.sqrt(np.outer(w,w))
+img = WatermarkImage('lena.bmp',"")
+img.set_img_with_message()
+cv2.imwrite('img_with_message.jpeg',img.img_with_message)
+#####################################################################
 
-#f0 = 0.5
-#wc = np.pi * f0
-#xv,yv = np.meshgrid(np.linspace(-L,L),np.linspace(-L,L))
-# albo:
-#xv,yv = np.meshgrid(np.linspace(-L,L,10),np.linspace(-L,L,10))
-#temp = np.divide(wc*np.sqrt(xv**2 + yv**2),2*np.pi*np.sqrt(xv**2 + yv**2))
-#besselj = scipy.special.jn(1, temp)
-#lp = wc * besselj
+#cv2.imwrite('.jpeg',img.)
 
-#kernel = np.ones((5,5),np.float32)/25
-#kernel = np.matrix('0 1 0 ; 1 -4 1 ; 0 1 0')
+img.read_watermark()
 
-kernel = np.array([[-1, -1, -1, -1, -1],
-                   [-1,  1,  2,  1, -1],
-                   [-1,  2,  4,  2, -1],
-                   [-1,  1,  2,  1, -1],
-                   [-1, -1, -1, -1, -1]])
-
-dst = cv2.filter2D(new_img,-1,kernel)
-
-cv2.imshow('image',dst)
-#cv2.waitKey(1000)
-#cv2.imwrite('dst.bmp',dst)
-cv2.imwrite('dst.jpeg',dst)
+cv2.imwrite('message_matrix.jpeg',img.message_matrix)
+cv2.imwrite('watermark.jpeg',img.watermark)
+cv2.imwrite('noise.jpeg',img.noise)
+cv2.imwrite('noised_watermark.jpeg',img.noised_watermark)
+cv2.imwrite('img_with_message.jpeg',img.img_with_message)
+cv2.imwrite('dst.jpeg',img.dst)
+cv2.imwrite('demmod_img.jpeg',img.demmod_img)
+cv2.imwrite('watermark_detected.jpeg',img.watermark_detected)
 
 
-
-#####################33
-
-img_dem = dst * noise_signed
-
-
-
-cv2.imshow('image',img_dem)
-#cv2.waitKey(1000)
-#cv2.imwrite('img_dem.bmp',img_dem)
-cv2.imwrite('img_dem.jpeg',img_dem)
-
-ZnakDetekt = np.zeros((width,height), np.uint8)
-for i in range(1,Mb+1):
-	for j in range(1,Nb+1):
-		ZnakDetekt[(i-1)*K+1:i*K+1,(j-1)*K+1:j*K+1] = np.sign(np.sum(np.sum(img_dem[(i-1)*K+1:i*K+1,(j-1)*K+1:j*K+1])))
-cv2.imshow('image',ZnakDetekt)
-#cv2.waitKey(1000)
-#cv2.imwrite('ZnakDetekt.bmp',ZnakDetekt)
-cv2.imwrite('ZnakDetekt.jpeg',ZnakDetekt)
