@@ -80,7 +80,7 @@ class WatermarkImage:
     def set_noise(self):
         for i in range(self.width):
             for j in range(self.height):
-                self.noise[i][j] = random.randint(1, 6)
+                self.noise[i][j] = random.randint(1, 2)
 
     def set_noised_watermark(self):
         self.noised_watermark = self.noise * self.watermark
@@ -112,13 +112,14 @@ class WatermarkImage:
                     np.sum(self.demmod_img[(i - 1) * self.K + 1:i * self.K + 1, (j - 1) * self.K + 1:j * self.K + 1]))
 
 
+    def check_watermark_detected(self):
+	self.check_watermark_detected = self.watermark_detected - self.watermark_visible
+
     def read_watermark(self):
         self.set_dst()
         self.set_demmod_img()
-        self.set_watermark_detected()  
-
-    def check_watermark_detected(self):
-	self.check_watermark_detected = self.watermark_detected - self.watermark_visible
+        self.set_watermark_detected()
+	self.check_watermark_detected() 
 
     def write_all_images_to_files(self):
 	cv2.imwrite('message_matrix.jpeg', self.message_matrix)

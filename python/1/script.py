@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # import sys
 #sys.path.append('/usr/local/lib/python2.7/site-packages')
 import numpy as np
@@ -80,7 +81,7 @@ class WatermarkImage:
     def set_noise(self):
         for i in range(self.width):
             for j in range(self.height):
-                self.noise[i][j] = random.randint(1, 6)
+                self.noise[i][j] = random.randint(1, 60)
 
     def set_noised_watermark(self):
         self.noised_watermark = self.noise * self.watermark
@@ -113,25 +114,27 @@ class WatermarkImage:
 
 
     def check_watermark_detected(self):
-	self.check_watermark_detected = self.watermark_detected - self.watermark_visible
+        self.check_watermark_detected = self.watermark_detected - self.watermark_visible
+        self.error_rate = np.sum(self.check_watermark_detected)
+
 
     def read_watermark(self):
         self.set_dst()
         self.set_demmod_img()
         self.set_watermark_detected()
-	self.check_watermark_detected() 
+        self.check_watermark_detected()
 
     def write_all_images_to_files(self):
-	cv2.imwrite('message_matrix.jpeg', self.message_matrix)
-	cv2.imwrite('watermark.jpeg', self.watermark)
-	cv2.imwrite('watermark_visible.jpeg', self.watermark_visible)
-	cv2.imwrite('noise.jpeg', self.noise)
-	cv2.imwrite('noised_watermark.jpeg', self.noised_watermark)
-	cv2.imwrite('img_with_message.jpeg', self.img_with_message)
-	cv2.imwrite('dst.jpeg', self.dst)
-	cv2.imwrite('demmod_img.jpeg', self.demmod_img)
-	cv2.imwrite('watermark_detected.jpeg', self.watermark_detected)
-	cv2.imwrite('check_watermark_detected.jpeg', self.check_watermark_detected)
+        cv2.imwrite('message_matrix.jpeg', self.message_matrix)
+        cv2.imwrite('watermark.jpeg', self.watermark)
+        cv2.imwrite('watermark_visible.jpeg', self.watermark_visible)
+        cv2.imwrite('noise.jpeg', self.noise)
+        cv2.imwrite('noised_watermark.jpeg', self.noised_watermark)
+        cv2.imwrite('img_with_message.jpeg', self.img_with_message)
+        cv2.imwrite('dst.jpeg', self.dst)
+        cv2.imwrite('demmod_img.jpeg', self.demmod_img)
+        cv2.imwrite('watermark_detected.jpeg', self.watermark_detected)
+        cv2.imwrite('check_watermark_detected.jpeg', self.check_watermark_detected)
 
 
 #####################################################################
