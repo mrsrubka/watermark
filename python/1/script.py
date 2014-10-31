@@ -112,10 +112,14 @@ class WatermarkImage:
                     np.sum(self.demmod_img[(i - 1) * self.K + 1:i * self.K + 1, (j - 1) * self.K + 1:j * self.K + 1]))
 
 
+    def check_watermark_detected(self):
+	self.check_watermark_detected = self.watermark_detected - self.watermark_visible
+
     def read_watermark(self):
         self.set_dst()
         self.set_demmod_img()
-        self.set_watermark_detected()  
+        self.set_watermark_detected()
+	self.check_watermark_detected() 
 
     def write_all_images_to_files(self):
 	cv2.imwrite('message_matrix.jpeg', self.message_matrix)
@@ -127,6 +131,7 @@ class WatermarkImage:
 	cv2.imwrite('dst.jpeg', self.dst)
 	cv2.imwrite('demmod_img.jpeg', self.demmod_img)
 	cv2.imwrite('watermark_detected.jpeg', self.watermark_detected)
+	cv2.imwrite('check_watermark_detected.jpeg', self.check_watermark_detected)
 
 
 #####################################################################

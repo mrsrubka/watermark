@@ -68,14 +68,14 @@ class WatermarkImage:
                 self.watermark_visible[(i - 1) * self.K + 1:i * self.K + 1, (j - 1) * self.K + 1:j * self.K + 1] = \
                     self.message_matrix[i][j]
 
-
-    def set_watermark_visible(self):
-        for i in range(1, self.Mb + 1):
-            for j in range(1, self.Nb + 1):
-                if self.watermark[i][j] == -1:
-                    self.watermark_visible[i][j] = 255
-                else:
-                    self.watermark_visible[i][j] = 0
+	# The following def is not used, because of line added above ( self.watermark_visible)
+#    def set_watermark_visible(self):
+#        for i in range(1, self.Mb + 1):
+#            for j in range(1, self.Nb + 1):
+#                if self.watermark[i][j] == -1:
+#                    self.watermark_visible[i][j] = 255
+#                else:
+#                    self.watermark_visible[i][j] = 0
 
     def set_noise(self):
         for i in range(self.width):
@@ -108,12 +108,6 @@ class WatermarkImage:
     def set_watermark_detected(self):
         for i in range(1, self.Mb + 1):
             for j in range(1, self.Nb + 1):
-                #if (np.sign(np.sum(self.demmod_img[(i-1)*self.K+1:i*self.K+1,(j-1)*self.K+1:j*self.K+1])) > 30000):
-                #	self.watermark_detected[(i-1)*self.K+1:i*self.K+1,(j-1)*self.K+1:j*self.K+1] = -1
-                #else:
-                #	self.watermark_detected[(i-1)*self.K+1:i*self.K+1,(j-1)*self.K+1:j*self.K+1] = 1
-
-
                 self.watermark_detected[(i - 1) * self.K + 1:i * self.K + 1, (j - 1) * self.K + 1:j * self.K + 1] = np.sign(
                     np.sum(self.demmod_img[(i - 1) * self.K + 1:i * self.K + 1, (j - 1) * self.K + 1:j * self.K + 1]))
 
@@ -121,7 +115,10 @@ class WatermarkImage:
     def read_watermark(self):
         self.set_dst()
         self.set_demmod_img()
-        self.set_watermark_detected()  #####################################################################
+        self.set_watermark_detected()  
+
+    def check_watermark_detected(self):
+	self.check_watermark_detected = self.watermark_detected - self.watermark_visible
 
     def write_all_images_to_files(self):
 	cv2.imwrite('message_matrix.jpeg', self.message_matrix)
@@ -133,22 +130,19 @@ class WatermarkImage:
 	cv2.imwrite('dst.jpeg', self.dst)
 	cv2.imwrite('demmod_img.jpeg', self.demmod_img)
 	cv2.imwrite('watermark_detected.jpeg', self.watermark_detected)
+	cv2.imwrite('check_watermark_detected.jpeg', self.check_watermark_detected)
+
+
+#####################################################################
+# end of class WatermarkImage
+#####################################################################
+
 
 img = WatermarkImage('lena.bmp', "")
 img.write_watermark()
 #####################################################################
 img.read_watermark()
-
-cv2.imwrite('outcome/message_matrix.jpeg', img.message_matrix)
-cv2.imwrite('outcome/watermark.jpeg', img.watermark)
-cv2.imwrite('outcome/watermark_visible.jpeg', img.watermark_visible)
-cv2.imwrite('outcome/noise.jpeg', img.noise)
-cv2.imwrite('outcome/noised_watermark.jpeg', img.noised_watermark)
-cv2.imwrite('outcome/img_with_message.jpeg', img.img_with_message)
-cv2.imwrite('outcome/dst.jpeg', img.dst)
-cv2.imwrite('outcome/demmod_img.jpeg', img.demmod_img)
-cv2.imwrite('outcome/watermark_detected.jpeg', img.watermark_detected)
-
+#####################################################################
 img.write_all_images_to_files()
 
-#print img.watermark_detected
+
