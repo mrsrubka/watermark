@@ -48,10 +48,8 @@ class WatermarkImage:
     def getHeight(self):
         return self.height
 
-
     def getWidth(self):
         return self.width
-
 
     def set_message_matrix(self, message):
         # at this moment we do not use paremeter: "message"
@@ -98,7 +96,6 @@ class WatermarkImage:
             self.Mb = self.width / self.K
             self.Nb = self.height / self.K
 
-
     def write_watermark(self):
         self.set_message_matrix("")
         self.set_watermark()
@@ -107,10 +104,8 @@ class WatermarkImage:
         self.set_noised_watermark()
         self.set_img_with_message()
 
-
     def set_dst(self):
         self.dst = cv2.filter2D(self.img_with_message, -1, self.kernel)
-
 
     def set_demmod_img(self):
         self.demmod_img = self.dst * self.noise
@@ -118,8 +113,8 @@ class WatermarkImage:
     def set_watermark_detected(self):
         for i in range(1, self.Mb + 1):
             for j in range(1, self.Nb + 1):
-                self.watermark_detected[(i - 1) * self.K + 1:i * self.K + 1, (j - 1) * self.K + 1:j * self.K + 1] = np.sign(
-                    np.sum(self.demmod_img[(i - 1) * self.K + 1:i * self.K + 1, (j - 1) * self.K + 1:j * self.K + 1]))
+                self.watermark_detected[(i - 1) * self.K + 1:i * self.K + 1, (j - 1) * self.K + 1:j * self.K + 1] = \
+                    np.sign(np.sum(self.demmod_img[(i - 1) * self.K + 1:i * self.K + 1, (j - 1) * self.K + 1:j * self.K + 1]))
 
     def check_watermark_detected(self):
         self.check_watermark_detected = self.watermark_detected - self.watermark_visible
