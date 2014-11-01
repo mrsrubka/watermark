@@ -68,15 +68,6 @@ class WatermarkImage:
                 self.watermark_visible[(i - 1) * self.K + 1:i * self.K + 1, (j - 1) * self.K + 1:j * self.K + 1] = \
                     self.message_matrix[i][j]
 
-# The following def is not used, because of line added above ( self.watermark_visible)
-#    def set_watermark_visible(self):
-#        for i in range(1, self.Mb + 1):
-#            for j in range(1, self.Nb + 1):
-#                if self.watermark[i][j] == -1:
-#                    self.watermark_visible[i][j] = 255
-#                else:
-#                    self.watermark_visible[i][j] = 0
-
     def set_noise(self):
         for i in range(self.width):
             for j in range(self.height):
@@ -99,7 +90,6 @@ class WatermarkImage:
     def write_watermark(self):
         self.set_message_matrix("")
         self.set_watermark()
-     #   self.set_watermark_visible()
         self.set_noise()
         self.set_noised_watermark()
         self.set_img_with_message()
