@@ -3,8 +3,12 @@ import cv2
 import random
 
 class WatermarkImage:
-    def __init__(self, original_image, message=""):
-        self.org = cv2.imread(original_image, 0)  #f.k.a. img
+    def __init__(self, original_image=False, message=""):
+
+        if original_image == False:
+            self.org = np.zeros((512, 512), np.uint8)
+        else:
+            self.org = cv2.imread(original_image, 0)  #f.k.a. img
         self.message = message
 
         self.height = self.org.shape[0]
