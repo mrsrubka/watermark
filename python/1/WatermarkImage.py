@@ -2,10 +2,12 @@ import numpy as np
 import cv2
 import random
 
+
 class WatermarkImage:
+
     def __init__(self, original_image=False, message=""):
 
-        if original_image == False:
+        if original_image is False:
             self.org = np.zeros((512, 512), np.uint8)
         else:
             self.org = cv2.imread(original_image, 0)  #f.k.a. img
@@ -42,7 +44,6 @@ class WatermarkImage:
 
         self.watermark_detected = np.zeros((self.width, self.height), np.uint8)  #f.k.a. ZnakDetekt
 
-
     def getHeight(self):
         return self.height
 
@@ -60,7 +61,6 @@ class WatermarkImage:
                 if self.message_matrix[i][j] == 0:
                     self.message_matrix[i][j] = -1
 
-
     def set_watermark(self):
         for i in range(1, self.Mb + 1):
             for j in range(1, self.Nb + 1):
@@ -69,7 +69,7 @@ class WatermarkImage:
                 self.watermark_visible[(i - 1) * self.K + 1:i * self.K + 1, (j - 1) * self.K + 1:j * self.K + 1] = \
                     self.message_matrix[i][j]
 
-	# The following def is not used, because of line added above ( self.watermark_visible)
+# The following def is not used, because of line added above ( self.watermark_visible)
 #    def set_watermark_visible(self):
 #        for i in range(1, self.Mb + 1):
 #            for j in range(1, self.Nb + 1):
@@ -105,18 +105,15 @@ class WatermarkImage:
     def set_demmod_img(self):
         self.demmod_img = self.dst * self.noise
 
-
     def set_watermark_detected(self):
         for i in range(1, self.Mb + 1):
             for j in range(1, self.Nb + 1):
                 self.watermark_detected[(i - 1) * self.K + 1:i * self.K + 1, (j - 1) * self.K + 1:j * self.K + 1] = np.sign(
                     np.sum(self.demmod_img[(i - 1) * self.K + 1:i * self.K + 1, (j - 1) * self.K + 1:j * self.K + 1]))
 
-
     def check_watermark_detected(self):
         self.check_watermark_detected = self.watermark_detected - self.watermark_visible
         self.error_rate = np.sum(self.check_watermark_detected)
-
 
     def read_watermark(self):
         self.set_dst()
