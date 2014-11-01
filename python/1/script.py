@@ -6,7 +6,7 @@ import cv2
 import random
 from WatermarkImage import WatermarkImage
 
-img = WatermarkImage('lena.bmp', "")
+img = WatermarkImage('lena.bmp')
 img.write_watermark()
 #####################################################################
 img.read_watermark()

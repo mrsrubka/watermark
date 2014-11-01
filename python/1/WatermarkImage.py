@@ -3,7 +3,7 @@ import cv2
 import random
 
 class WatermarkImage:
-    def __init__(self, original_image, message):
+    def __init__(self, original_image, message=""):
         self.org = cv2.imread(original_image, 0)  #f.k.a. img
         self.message = message
 
