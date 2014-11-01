@@ -27,6 +27,7 @@ class WatermarkImage:
         self.watermark_visible = np.zeros((self.width, self.height), np.uint8)  # f.k.a. resized_image_signed
 
         self.noise = np.zeros((self.width, self.height), np.int8)  #f.k.a. noise_signed
+        self.noise_is_set = False
 
         self.noised_watermark = np.zeros((self.width, self.height), np.int8)  #f.k.a. noise_mark
 
@@ -81,13 +82,22 @@ class WatermarkImage:
     def set_noise(self):
         for i in range(self.width):
             for j in range(self.height):
-                self.noise[i][j] = random.randint(1, 60)
+                self.noise[i][j] = random.randint(1, 6)
+        self.noise_is_set = True
 
     def set_noised_watermark(self):
         self.noised_watermark = self.noise * self.watermark
 
-    def set_img_with_message(self):
-        self.img_with_message = self.org + self.noised_watermark
+    def set_img_with_message(self,image_from_file = False):
+        if image_from_file is False:
+            self.img_with_message = self.org + self.noised_watermark
+        else:
+            self.img_with_message = cv2.imread(image_from_file, 0)
+            self.height = self.img_with_message.shape[0]
+            self.width = self.img_with_message.shape[1]
+            self.Mb = self.width / self.K
+            self.Nb = self.height / self.K
+
 
     def write_watermark(self):
         self.set_message_matrix("")
@@ -117,6 +127,8 @@ class WatermarkImage:
 
     def read_watermark(self):
         self.set_dst()
+        if self.noise_is_set is False:
+            self.set_noise()
         self.set_demmod_img()
         self.set_watermark_detected()
         self.check_watermark_detected()
