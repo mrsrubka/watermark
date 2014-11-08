@@ -5,7 +5,7 @@ from WatermarkImage import WatermarkImage
 #file_path = raw_input("Please enter file path")
 #users_message = raw_input("Please enter your message")
 file_path = 'lena.bmp'
-users_message = '1234'
+users_message = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
 img = WatermarkImage(file_path, users_message)
 img.write_watermark()
 #####################################################################

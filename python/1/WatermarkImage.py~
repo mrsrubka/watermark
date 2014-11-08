@@ -16,7 +16,7 @@ class WatermarkImage:
 
         if len(self.message) < 32:
             difference = 32 - len(self.message)
-            self.message += difference * 'x'
+            message += difference * "1"
 
         self.message_binary = ""
         self.message_numbers = []
@@ -34,7 +34,7 @@ class WatermarkImage:
         self.Mb = self.width / self.K
         self.Nb = self.height / self.K
 
-        self.message_matrix = np.zeros((16,16), np.uint8)  #formerly known as blank_image_signed
+        self.message_matrix = np.zeros((self.K, self.K), np.uint8)  #formerly known as blank_image_signed
 
         self.watermark = np.zeros((self.width, self.height), np.int8)  # f.k.a. resized_image_signed
 
@@ -98,14 +98,15 @@ class WatermarkImage:
     def set_watermark(self):
         for i in range(self.Mb):
             for j in range(self.Nb):
-                self.watermark[i * self.K : ((i+1)*self.K) - 1,j*self.K:((j+1)*self.K) - 1] = self.message_matrix[i][j]
-                self.watermark_visible[i * self.K : ((i+1)*self.K) - 1,j*self.K:((j+1)*self.K) - 1] = \
+                self.watermark[(i - 1) * self.K + 1:i * self.K + 1, (j - 1) * self.K + 1:j * self.K + 1] = \
+                    self.message_matrix[i][j]
+                self.watermark_visible[(i - 1) * self.K + 1:i * self.K + 1, (j - 1) * self.K + 1:j * self.K + 1] = \
                     self.message_matrix[i][j]
 
     def set_noise(self):
         for i in range(self.width):
             for j in range(self.height):
-                self.noise[i][j] = random.randint(1, 60)
+                self.noise[i][j] = random.randint(1, 3)
         self.noise_is_set = True
 
     def set_noised_watermark(self):
@@ -137,18 +138,12 @@ class WatermarkImage:
     def set_watermark_detected(self):
         for i in range(self.Mb):
             for j in range(self.Nb):
-                self.watermark_detected[i * self.K : ((i+1)*self.K) - 1,j * self.K:((j+1)*self.K) - 1] = np.sign(np.sum(self.demmod_img[i * self.K : ((i+1)*self.K) - 1,j * self.K:((j+1)*self.K) - 1]))
-                if np.sign(np.sum(self.demmod_img[i * self.K : ((i+1)*self.K) - 1,j * self.K:((j+1)*self.K) - 1])) > 0:
+                self.watermark_detected[(i - 1) * self.K + 1:i * self.K + 1, (j - 1) * self.K + 1:j * self.K + 1] = \
+                    np.sign(np.sum(self.demmod_img[(i - 1) * self.K + 1:i * self.K + 1, (j - 1) * self.K + 1:j * self.K + 1]))
+                if np.sign(np.sum(self.demmod_img[(i - 1) * self.K + 1:i * self.K + 1, (j - 1) * self.K + 1:j * self.K + 1])) > 0:
                     self.message_binary_detected += '1'
                 else:
                     self.message_binary_detected += '0'
-#        for i in range(self.Mb):
-#            for j in range(self.Nb):
-#                self.watermark_detected[(i - 1) * self.K + 1:i * self.K + 1, (j - 1) * self.K + 1:j * self.K + 1] = np.sign(np.sum(self.demmod_img[(i - 1) * self.K + 1:i * self.K + 1, (j - 1) * self.K + 1:j * self.K + 1]))
-#                if np.sign(np.sum(self.demmod_img[(i - 1) * self.K + 1:i * self.K + 1, (j - 1) * self.K + 1:j * self.K + 1])) > 0:
-#                    self.message_binary_detected += '1'
-#                else:
-#                    self.message_binary_detected += '0'
 
     def set_message_detected(self):
         self.detected_letters_binary = [self.message_binary_detected[i:i+8] for i in range(0, len(self.message_binary_detected), 8)]
