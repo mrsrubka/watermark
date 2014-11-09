@@ -85,7 +85,24 @@ class MyWidget(QtGui.QWidget):
 
 
         img = WatermarkImage(file_path, users_message)
-        img.write_watermark()
+
+        img_temporary = WatermarkImage(file_path, users_message)
+
+        noise_optimal = 0
+        max_error_rate = 10000
+        for i in range(2,60):
+            img_temporary.write_watermark(i)
+            img_temporary.read_watermark()
+            if img_temporary.error_rate < max_error_rate:
+                max_error_rate = img_temporary.error_rate
+                noise_optimal = i
+            if max_error_rate == 0:
+                break
+
+
+        img.write_watermark(noise_optimal)
+
+
 #####################################################################
 
 #file_with_message_path = raw_input("Please enter file path")

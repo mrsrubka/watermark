@@ -16,7 +16,7 @@ class WatermarkImage:
 
         if len(self.message) < 32:
             difference = 32 - len(self.message)
-            self.message += difference * 'x'
+            self.message += difference * ' '
 
         self.message_binary = ""
         self.message_numbers = []
@@ -102,10 +102,10 @@ class WatermarkImage:
                 self.watermark_visible[i * self.K : ((i+1)*self.K) - 1,j*self.K:((j+1)*self.K) - 1] = \
                     self.message_matrix[i][j]
 
-    def set_noise(self):
+    def set_noise(self,max_noise):
         for i in range(self.width):
             for j in range(self.height):
-                self.noise[i][j] = random.randint(1, 60)
+                self.noise[i][j] = random.randint(1, max_noise)
         self.noise_is_set = True
 
     def set_noised_watermark(self):
@@ -121,12 +121,13 @@ class WatermarkImage:
             self.Mb = self.width / self.K
             self.Nb = self.height / self.K
 
-    def write_watermark(self):
+    def write_watermark(self,max_noise=2):
         self.set_message_matrix()
         self.set_watermark()
-        self.set_noise()
+        self.set_noise(max_noise)
         self.set_noised_watermark()
         self.set_img_with_message()
+
 
     def set_dst(self):
         self.dst = cv2.filter2D(self.img_with_message, -1, self.kernel)
@@ -156,7 +157,7 @@ class WatermarkImage:
             self.c = chr(int(item,2))
             self.message_detected += self.c
 
-    def check_watermark_detected(self):
+    def check_watermark_detected_f(self):
         self.check_watermark_detected = self.watermark_detected - self.watermark_visible
         self.error_rate = np.sum(self.check_watermark_detected)
 
@@ -167,7 +168,7 @@ class WatermarkImage:
         self.set_demmod_img()
         self.set_watermark_detected()
         self.set_message_detected()
-        self.check_watermark_detected()
+        self.check_watermark_detected_f()
 
     def write_all_images_to_files(self):
         cv2.imwrite('message_matrix.jpeg', self.message_matrix)
